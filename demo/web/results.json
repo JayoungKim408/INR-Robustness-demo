@@ -1,0 +1,247 @@
+{
+ "eps": 0.3,
+ "steps": 20,
+ "restarts": 5,
+ "seed": 0,
+ "norm": "Linf",
+ "samples": [
+  {
+   "idx": 60012,
+   "label": 9,
+   "orig": "img/60012_orig.png",
+   "victims": {
+    "dws": {
+     "title": "DWS",
+     "adv": "img/60012_dws_adv.png",
+     "delta": "img/60012_dws_delta.png",
+     "rec_clean": "img/60012_dws_rec_clean.png",
+     "rec_adv": "img/60012_dws_rec_adv.png",
+     "pred_clean": 9,
+     "conf_clean": 1.0,
+     "pred_adv": 2,
+     "conf_adv": 0.5653496384620667,
+     "linf": 0.30000001192092896,
+     "probs_clean": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ],
+     "probs_adv": [
+      0.4087,
+      0.0,
+      0.5653,
+      0.0006,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0253
+     ]
+    },
+    "scalegmn": {
+     "title": "ScaleGMN",
+     "adv": "img/60012_scalegmn_adv.png",
+     "delta": "img/60012_scalegmn_delta.png",
+     "rec_clean": "img/60012_scalegmn_rec_clean.png",
+     "rec_adv": "img/60012_scalegmn_rec_adv.png",
+     "pred_clean": 9,
+     "conf_clean": 0.9999978542327881,
+     "pred_adv": 7,
+     "conf_adv": 0.5123197436332703,
+     "linf": 0.30000001192092896,
+     "probs_clean": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ],
+     "probs_adv": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0928,
+      0.0,
+      0.0,
+      0.5123,
+      0.0,
+      0.3948
+     ]
+    }
+   }
+  },
+  {
+   "idx": 60016,
+   "label": 9,
+   "orig": "img/60016_orig.png",
+   "victims": {
+    "dws": {
+     "title": "DWS",
+     "adv": "img/60016_dws_adv.png",
+     "delta": "img/60016_dws_delta.png",
+     "rec_clean": "img/60016_dws_rec_clean.png",
+     "rec_adv": "img/60016_dws_rec_adv.png",
+     "pred_clean": 9,
+     "conf_clean": 1.0,
+     "pred_adv": 4,
+     "conf_adv": 0.9999984502792358,
+     "linf": 0.30000001192092896,
+     "probs_clean": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ],
+     "probs_adv": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "scalegmn": {
+     "title": "ScaleGMN",
+     "adv": "img/60016_scalegmn_adv.png",
+     "delta": "img/60016_scalegmn_delta.png",
+     "rec_clean": "img/60016_scalegmn_rec_clean.png",
+     "rec_adv": "img/60016_scalegmn_rec_adv.png",
+     "pred_clean": 9,
+     "conf_clean": 0.9994493126869202,
+     "pred_adv": 8,
+     "conf_adv": 0.9635565876960754,
+     "linf": 0.30000001192092896,
+     "probs_clean": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0005,
+      0.9994
+     ],
+     "probs_adv": [
+      0.0001,
+      0.0,
+      0.0,
+      0.0,
+      0.0016,
+      0.0,
+      0.0,
+      0.0303,
+      0.9636,
+      0.0044
+     ]
+    }
+   }
+  },
+  {
+   "idx": 60031,
+   "label": 1,
+   "orig": "img/60031_orig.png",
+   "victims": {
+    "dws": {
+     "title": "DWS",
+     "adv": "img/60031_dws_adv.png",
+     "delta": "img/60031_dws_delta.png",
+     "rec_clean": "img/60031_dws_rec_clean.png",
+     "rec_adv": "img/60031_dws_rec_adv.png",
+     "pred_clean": 1,
+     "conf_clean": 1.0,
+     "pred_adv": 4,
+     "conf_adv": 0.8269045948982239,
+     "linf": 0.30000001192092896,
+     "probs_clean": [
+      0.0,
+      1.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "probs_adv": [
+      0.0024,
+      0.1707,
+      0.0,
+      0.0,
+      0.8269,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "scalegmn": {
+     "title": "ScaleGMN",
+     "adv": "img/60031_scalegmn_adv.png",
+     "delta": "img/60031_scalegmn_delta.png",
+     "rec_clean": "img/60031_scalegmn_rec_clean.png",
+     "rec_adv": "img/60031_scalegmn_rec_adv.png",
+     "pred_clean": 1,
+     "conf_clean": 0.9999984502792358,
+     "pred_adv": 5,
+     "conf_adv": 0.5073078274726868,
+     "linf": 0.30000001192092896,
+     "probs_clean": [
+      0.0,
+      1.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "probs_adv": [
+      0.0,
+      0.0055,
+      0.0,
+      0.0052,
+      0.0,
+      0.5073,
+      0.0,
+      0.4788,
+      0.0031,
+      0.0
+     ]
+    }
+   }
+  }
+ ],
+ "footnote": "These 3 images were <b>selected</b> from 60 candidates because the attack succeeds on both victims; it does not always. Over the full 10k MNIST test set (project runs), accuracy under this attack is 30.2% for DWS and 78.8% for ScaleGMN. DWS is also only ~88% accurate on clean fixed-init SIRENs."
+}

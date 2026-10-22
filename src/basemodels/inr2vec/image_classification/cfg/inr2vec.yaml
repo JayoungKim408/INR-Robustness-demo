@@ -1,0 +1,31 @@
+siren_path: null
+siren_prefix: null
+split_points: null
+data_path: null
+out_dir: null
+
+extra_aug: False
+n_extra_aug: 0 
+
+encoder:
+  hidden_dims: [128, 256, 512]
+  embedding_dim: 256
+
+decoder:
+  input_dim: 2
+  hidden_dim: 256
+  num_hidden_layers_before_skip: 3
+  num_hidden_layers_after_skip: 3
+  out_dim: 1
+
+mlp:
+  hidden_dim: 512
+  num_hidden_layers: 4
+
+train_bs: 256
+val_bs: 256
+
+lr: 1.0e-4
+wd: 1.0e-5
+num_epochs: 100
+

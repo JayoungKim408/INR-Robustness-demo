@@ -1,0 +1,17 @@
+ckpt_path: null
+out_path: null
+save_h5: false 
+extra_aug: false
+n_extra_aug: 0
+
+encoder:
+  hidden_dims: [512, 512, 1024, 1024]
+  embedding_dim: 1024
+
+mlp:
+  hidden_dim: 512
+  num_hidden_layers: 4
+
+train_split: "train"
+val_split: "val"
+test_split: "test"

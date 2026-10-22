@@ -1,0 +1,28 @@
+# Source: existing h5 dataset with pcd and class_id
+pcd_root: "/workspace/INR-Robustness/assets/sirens/shapenet_h128l2_diff_init"
+splits: ["train"] # "val", "test"]
+num_points_pcd: 2048
+
+num_required_train_shapes: 100_000  # 0 = no augmentation, use original data only
+
+num_queries_on_surface: 100_000
+stds: [0.003, 0.01, 0.1]
+num_points_per_std: [250_000, 200_000, 25_000, 25_000]
+
+num_points_fitting: 10_000
+num_parallel_mlps: 256
+
+mlp:
+  hidden_dim: 128
+  num_hidden_layers: 2  # pycarus 기준 2 = 실제 hidden layer 1개 (NFN 논문의 "single hidden layer")
+
+# diff init: 매번 새로운 random init 사용
+init_mode: "diff"
+
+is_first: false
+bias_zero_init: true 
+
+num_steps: 1000  # NFN 논문: "we train for 1,000 steps"
+lr: 0.0001
+
+out_root: "/workspace/INR-Robustness/assets/sirens/depth1_width128_scale30/shapenet/diff_init_bz_no_isfirst"

@@ -1,0 +1,16 @@
+embeddings_path: null
+out_dir: null
+
+extra_aug: false 
+n_extra_aug: 0 
+
+train_bs: 256
+val_bs: 256
+
+layers_dim: [256, 256, 128]
+num_classes: 10
+
+lr: 1.0e-3
+wd: 1.0e-4
+num_epochs: 100
+use_interpolation: true

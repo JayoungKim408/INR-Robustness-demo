@@ -1,0 +1,60 @@
+# INR2Array (AutoEncoder) Configuration for MNIST
+# Plain YAML config - no OmegaConf/Hydra dependencies
+
+data_name: mnist
+seed: 42
+bs: 128
+total_steps: 200000
+warmup_steps: 10000
+decay_start: null
+true_target: false
+amp_enabled: false
+amp_dtype: float16
+watch_grads: true
+aligned_sampling: false
+grad_clip: null
+compile: true
+debug_compile: false
+debug: false
+lr: 0.0001
+weight_decay: 0.01
+extra_aug: False
+loss_type: l2
+wandb: false
+
+# Paths (will be overridden by run_attacks.py)
+data_root_dir: /mnt/data0/jayoung/INR-Robustness
+inr2array_model_dir: /mnt/data0/jayoung/INR-Robustness/basemodels/nft/${data_name}/inr2array
+
+# Dataset config
+dset:
+  siren_path: null  # Will be set by run_attacks.py
+  siren_prefix: fixed_init
+  data_path: null   # Will be set by run_attacks.py
+  split_points: [55000, 60000]
+
+# Perceiver pooling config
+# Note: reduce must be false when model.spatial is true
+pool_cls:
+  n_latent: 16
+  latent_dim: 256
+  reduce: false
+  attn_dropout: 0
+  ff_dropout: 0
+  self_per_cross_attn: 0
+
+# AutoEncoder model config
+model:
+  block_type: nft
+  num_blocks: 6
+  spatial: true
+  compile: false
+  enc_scale: 3
+  enc_map_size: 128
+  dec_type: sitzmann
+  additive: false
+  dec_hidden_size: 256
+  dec_hidden_layers: 1
+  num_heads: 4
+  ff_factor: 4
+  dropout: 0

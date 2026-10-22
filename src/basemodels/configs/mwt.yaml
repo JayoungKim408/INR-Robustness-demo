@@ -1,0 +1,37 @@
+name: null
+config: null
+
+model: WT
+dataset: mnist
+epochs: 0
+batch_size: 16
+auto_cast: true
+device: cuda
+
+dim: &dim 128
+siren_depth: &siren_depth 4
+omega: 30.0  # SIREN frequency scale (first_omega_0)
+save_dir: null  # Custom save directory for checkpoints
+
+lr_siren_rgb: 0.0001
+lr_classifier: 0.0001
+lr_sgd_lrs: 0.01
+weight_decay: 0.0001
+
+inner_steps: 6
+inner_steps_test: 6
+modulation_scale: 500
+cls_loss_weight: 0.01
+shared_lr: false
+classifier_depth: &classifier_depth 10
+mlp_mult: 1
+subsample_points: 1.0
+augmentations: false
+stages: simultaneous
+
+victim_model: mwt
+data_name: mnist
+attack_type: transfer2
+nfn_channels: 32
+
+# siren_dim: *dim * *siren_depth

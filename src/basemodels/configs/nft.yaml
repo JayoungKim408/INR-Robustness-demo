@@ -1,0 +1,15 @@
+# NFT (Neural Functional Transformer) Classifier Configuration
+# This is for stage 2: training the TransformerClassifier on embeddings
+# Plain YAML config - no OmegaConf/Hydra dependencies
+
+lr: 0.0001
+wd: 0.1
+n_epochs: 100
+alpha: 0  # mixup alpha (0 = no mixup)
+seed: 42
+wandb: false
+
+# Paths (will be overridden by run_attacks.py)
+data_name: cifar
+inr2array_model_dir: null  # Will be set by run_attacks.py
+latent_clf_dir: null  # Will be set by run_attacks.py

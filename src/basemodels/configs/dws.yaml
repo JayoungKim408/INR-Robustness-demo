@@ -1,0 +1,45 @@
+dataset_name: cifar
+augmentation: false # default: true 
+permutation: false # default: false 
+normalize: false # default: true 
+diagonal: false # default: false 
+do_rate: 0.0
+add_bn: true # default: true 
+
+# Paths
+statistics_path: "dataset/statistics.pth"
+split_path: "dataset/mnist_splits.json"
+data_path: ""
+base_path: "/mnt/data0/jayoung/INR-Robustness"
+extra_aug: False
+
+# Model
+model_type: "dwsnet"
+dim_hidden: 32
+n_hidden: 4
+n_fc_layers: 1
+reduction: "max"
+n_out_fc: 1
+set_layer: "sab"
+n_heads: 8
+
+# Training
+n_samples: null
+n_epochs: 100
+eval_every: 1
+
+# Optimization
+optim: "adamw"
+lr: 0.005
+batch_size: 512
+num_workers: 8
+
+# General
+seed: 42
+gpu: 0
+save_path: "./output"
+
+# Wandb
+wandb_project: "dws-nets"
+wandb_entity: ""
+wandb: false

@@ -1,0 +1,34 @@
+name: inr
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+  - defaults
+dependencies:
+  - python==3.11.14
+  - pytorch-cuda=12.4
+  - pytorch=*=*cuda12.4*
+  - torchvision
+  - matplotlib
+  - omegaconf
+  - hydra-core
+  - tqdm
+  - scikit-image
+  - scipy
+  - opencv
+  - wandb
+  - einops
+  - pandas
+  - ipykernel
+  - fsspec
+  - markupsafe
+  - markdown
+  - grpcio
+  - pip:
+    - perceiver_pytorch
+    - torch_geometric
+    - random-fourier-features-pytorch
+    - cmapy
+    - tensorboard
+    - configargparse
+    - scikit-learn

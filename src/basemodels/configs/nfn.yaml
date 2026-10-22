@@ -1,0 +1,55 @@
+# NFN (Neural Functional Networks) Configuration
+# Plain YAML config - no OmegaConf/Hydra dependencies
+
+data_name: cifar
+batch_size: 128
+warmup_steps: 10000
+max_steps: 200000
+seed: 42
+compile: true
+extra_aug: False
+wandb: false
+
+# Paths (will be overridden by run_attacks.py)
+data_root_dir: /workspace/INR-Robustness
+siren_clf_dir: /workspace/INR-Robustness/basemodels/nfn/${data_name}
+
+# Dataset config
+dset:
+  siren_path: null  # Will be set by run_attacks.py
+  siren_prefix: fixed_init
+  split_points: [45000, 50000]  # For CIFAR, use [45000, 50000]; for MNIST/Fashion use [55000, 60000]
+
+# Optimizer config
+opt:
+  optimizer: adam
+  lr: 0.0001
+
+accum_steps: 1
+
+# NFN model config
+nfnet:
+  hchannels: [512, 512, 512]
+  mode: NP  # NP or HNP
+  feature_dropout: 0.0
+  normalize: false
+  lnorm: null
+  append_stats: false
+
+  # Positional encoding
+  pos_enc:
+    max_freq: 10
+    num_bands: 6
+    enc_layers: false
+
+  # Classification head
+  head:
+    sigmoid: false
+    num_out: 10
+    lnorm: false
+    dropout: 0.5
+
+  # Input encoding (Gaussian Fourier Features)
+  inp_enc:
+    scale: 10
+    mapping_size: 128
