@@ -5,101 +5,268 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>INR-Robustness Demo</title>
 <style>
-  :root { --bg:#fafafa; --fg:#1b1b1f; --muted:#6b6b76; --card:#fff; --line:#e4e4ea; --ok:#1a7f45; --bad:#c62828; --accent:#3b5bdb; }
+  :root { --bg:#fafafa; --fg:#1b1b1f; --muted:#6b6b76; --card:#fff; --line:#e4e4ea; --ok:#1a7f45; --bad:#c62828; --accent:#3b5bdb; --bar:#b9bfd6; }
   @media (prefers-color-scheme: dark) {
-    :root { --bg:#14141a; --fg:#ececf1; --muted:#9a9aa8; --card:#1d1d26; --line:#2f2f3b; --ok:#4cc38a; --bad:#ff6b6b; --accent:#8da2ff; }
+    :root { --bg:#14141a; --fg:#ececf1; --muted:#9a9aa8; --card:#1d1d26; --line:#2f2f3b; --ok:#4cc38a; --bad:#ff6b6b; --accent:#8da2ff; --bar:#4a4f66; }
   }
   * { box-sizing:border-box; }
   body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif; }
-  main { max-width:980px; margin:0 auto; padding:32px 16px 64px; }
+  main { max-width:1000px; margin:0 auto; padding:32px 16px 64px; }
   h1 { font-size:1.6rem; margin:0 0 4px; }
-  h2 { font-size:1.15rem; margin:0; }
+  h2 { font-size:1.2rem; margin:32px 0 10px; }
   p.sub { color:var(--muted); margin:0 0 20px; }
-  .note { background:var(--card); border:1px solid var(--line); border-left:4px solid var(--accent); border-radius:8px; padding:12px 16px; font-size:.92rem; margin-bottom:24px; }
+  .note, .panel { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px 16px; }
+  .note { border-left:4px solid var(--accent); font-size:.92rem; }
   .note ol { margin:6px 0 0 18px; padding:0; }
-  .sample { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:18px; margin-bottom:20px; }
-  .head { display:flex; flex-wrap:wrap; gap:8px 16px; align-items:baseline; margin-bottom:14px; }
-  .tag { font-size:.85rem; color:var(--muted); }
-  .grid { display:grid; grid-template-columns:150px 1fr 1fr; gap:14px; align-items:start; }
-  .col { min-width:0; }
-  .col h3 { font-size:.8rem; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); margin:0 0 6px; font-weight:600; }
-  .imgs { display:flex; gap:10px; flex-wrap:wrap; }
+  .controls { display:flex; flex-wrap:wrap; gap:12px 24px; align-items:center; margin-bottom:12px; }
+  .controls label { font-size:.9rem; color:var(--muted); }
+  .controls output { font-weight:600; color:var(--fg); display:inline-block; min-width:2.6em; }
+  input[type=range] { width:200px; vertical-align:middle; accent-color:var(--accent); }
+  button, .chip { font:inherit; font-size:.88rem; border:1px solid var(--line); background:var(--card); color:var(--fg); border-radius:99px; padding:4px 12px; cursor:pointer; }
+  button:hover, .chip:hover { border-color:var(--accent); }
+  .chip.on { background:var(--accent); border-color:var(--accent); color:#fff; }
+  button.primary { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; border-radius:8px; padding:7px 18px; }
+  button:disabled { opacity:.5; cursor:wait; }
+  .chips { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(58px,1fr)); gap:6px; }
+  .thumb { position:relative; border:2px solid var(--line); border-radius:6px; padding:0; background:#000; cursor:pointer; line-height:0; overflow:hidden; }
+  .thumb canvas { width:100%; height:auto; display:block; image-rendering:pixelated; }
+  .thumb.sel { outline:3px solid var(--accent); outline-offset:1px; }
+  .thumb.both { border-color:var(--bad); } .thumb.one { border-color:#e0a030; } .thumb.none { border-color:var(--ok); }
+  .thumb.dim { opacity:.25; }
+  .legend { font-size:.8rem; color:var(--muted); margin:8px 0 0; display:flex; flex-wrap:wrap; gap:4px 14px; }
+  .dot { display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:4px; vertical-align:-1px; }
+  .stats { display:flex; flex-wrap:wrap; gap:8px 28px; font-size:.92rem; margin:0 0 12px; }
+  .stats b { font-variant-numeric:tabular-nums; }
+  .detail { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:16px; }
+  .vcard { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px; min-width:0; }
+  .vcard h3 { font-size:.85rem; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); margin:0 0 8px; }
+  .imgs { display:flex; gap:8px; flex-wrap:wrap; }
   figure { margin:0; text-align:center; }
-  figure img { width:112px; height:112px; image-rendering:pixelated; border:1px solid var(--line); border-radius:6px; background:#000; display:block; }
-  .orig figure img { width:140px; height:140px; }
-  figcaption { font-size:.75rem; color:var(--muted); margin-top:3px; }
-  .verdict { margin-top:10px; font-size:.9rem; }
-  .verdict table { border-collapse:collapse; width:100%; }
-  .verdict td { padding:3px 0; }
-  .verdict td:last-child { text-align:right; font-variant-numeric:tabular-nums; }
-  .pill { display:inline-block; padding:1px 9px; border-radius:99px; font-weight:600; font-size:.85rem; }
-  .pill.ok { color:var(--ok); border:1px solid var(--ok); }
-  .pill.bad { color:var(--bad); border:1px solid var(--bad); }
-  .banner { margin-top:8px; font-weight:600; font-size:.88rem; }
-  .banner.ok { color:var(--ok); } .banner.bad { color:var(--bad); }
-  footer { color:var(--muted); font-size:.85rem; margin-top:28px; }
-  footer a { color:var(--accent); }
-  @media (max-width:760px) { .grid { grid-template-columns:1fr; } .orig { display:flex; gap:12px; align-items:center; } }
+  figure canvas { width:100px; height:100px; image-rendering:pixelated; border:1px solid var(--line); border-radius:6px; background:#000; display:block; }
+  figcaption { font-size:.72rem; color:var(--muted); margin-top:2px; }
+  table.v { border-collapse:collapse; width:100%; margin-top:10px; font-size:.9rem; }
+  table.v td { padding:2px 0; } table.v td:last-child { text-align:right; font-variant-numeric:tabular-nums; }
+  .pill { display:inline-block; padding:0 9px; border-radius:99px; font-weight:600; font-size:.85rem; margin-right:4px; }
+  .pill.ok { color:var(--ok); border:1px solid var(--ok); } .pill.bad { color:var(--bad); border:1px solid var(--bad); }
+  .banner { margin-top:6px; font-weight:600; font-size:.88rem; } .banner.ok { color:var(--ok); } .banner.bad { color:var(--bad); }
+  .bars { display:flex; align-items:flex-end; gap:3px; height:54px; margin-top:4px; }
+  .bars div { flex:1; text-align:center; font-size:.62rem; color:var(--muted); display:flex; flex-direction:column; justify-content:flex-end; height:100%; }
+  .bars i { display:block; background:var(--bar); border-radius:2px 2px 0 0; min-height:1px; }
+  .bars div.pred i { background:var(--bad); } .bars div.truth i { background:var(--ok); }
+  .barlabel { font-size:.72rem; color:var(--muted); margin-top:8px; }
+  .drawrow { display:flex; flex-wrap:wrap; gap:18px; align-items:flex-start; }
+  #pad { width:224px; height:224px; border:1px solid var(--line); border-radius:8px; background:#000; touch-action:none; cursor:crosshair; }
+  .hidden { display:none; }
+  .muted { color:var(--muted); font-size:.9rem; }
+  code { background:var(--line); padding:1px 5px; border-radius:4px; font-size:.85em; }
+  footer { color:var(--muted); font-size:.85rem; margin-top:32px; }
+  @media (max-width:760px) { .detail { grid-template-columns:1fr; } }
 </style>
 </head>
 <body>
 <main>
   <h1>Attacking INR classifiers with a hypernetwork surrogate</h1>
-  <p class="sub">MNIST · victims: <b>DWS</b> and <b>ScaleGMN</b> · image-space attack, L<sub>&infin;</sub> budget <span id="eps"></span>, <span id="steps"></span>-step PGD, best of <span id="rst"></span> restarts</p>
+  <p class="sub">MNIST · victims: <b>DWS</b> and <b>ScaleGMN</b> · image-space L<sub>&infin;</sub> attack, <span id="steps"></span>-step PGD, best of <span id="rst"></span> restarts</p>
 
   <div class="note">
     These classifiers don't see pixels; they classify a <b>SIREN (INR) fitted to the image</b>. The attacker only edits the image:
     <ol>
       <li>A hypernetwork maps an image to SIREN weights, so <i>image &rarr; hypernet &rarr; victim</i> is differentiable.</li>
       <li>PGD on that chain gives an adversarial image (only the image changes).</li>
-      <li>A fresh SIREN is fitted to the adversarial image, and the real victim classifies it.</li>
+      <li>A fresh SIREN is fitted to the adversarial image and the real victim classifies it.</li>
     </ol>
   </div>
 
-  <div id="root"></div>
+  <h2>1. Explore 60 MNIST test images</h2>
+  <div class="controls">
+    <label>Perturbation budget &epsilon; <input id="eps" type="range" min="0" max="0" step="1"> <output id="epsv"></output> <span class="muted">(of the 0&ndash;1 pixel range)</span></label>
+  </div>
+  <div class="stats" id="stats"></div>
+  <div class="chips" id="chips"></div>
+  <div class="grid" id="grid"></div>
+  <div class="legend">
+    <span><span class="dot" style="background:var(--bad)"></span>fooled both</span>
+    <span><span class="dot" style="background:#e0a030"></span>fooled one</span>
+    <span><span class="dot" style="background:var(--ok)"></span>fooled neither</span>
+    <span>("fooled" = originally classified correctly, wrong after the attack)</span>
+  </div>
+  <div class="detail" id="detail"></div>
+
+  <h2>2. Draw your own digit</h2>
+  <div class="panel hidden" id="live">
+    <div class="drawrow">
+      <div>
+        <canvas id="pad" width="224" height="224"></canvas>
+        <div class="controls" style="margin:8px 0 0">
+          <button id="clear">Clear</button>
+          <label>&epsilon; <input id="leps" type="range" min="0.05" max="0.4" step="0.05" value="0.3" style="width:110px"> <output id="lepsv">0.30</output></label>
+          <button id="go" class="primary">Attack</button>
+        </div>
+      </div>
+      <div style="flex:1;min-width:280px"><div class="muted" id="livemsg">Draw a digit, then press Attack. The label is unknown, so each victim is attacked away from its own clean prediction.</div><div class="detail" id="livedetail" style="grid-template-columns:1fr"></div></div>
+    </div>
+  </div>
+  <div class="panel muted" id="nolive">
+    Not available on this page: it needs the Python backend (fits SIRENs and runs PGD on demand). Run it locally:
+    <br><code>python demo/serve.py</code> and open <code>http://127.0.0.1:8000</code>.
+  </div>
 
   <footer id="foot"></footer>
 </main>
 
 <script>
-fetch("results.json").then(r => r.json()).then(d => {
-  document.getElementById("eps").textContent = d.eps;
-  document.getElementById("steps").textContent = d.steps;
-  document.getElementById("rst").textContent = d.restarts;
-  const root = document.getElementById("root");
-  for (const s of d.samples) {
-    const sec = document.createElement("section");
-    sec.className = "sample";
-    const cols = Object.values(s.victims).map(v => {
-      const flipped = v.pred_adv !== s.label;
-      const okClean = v.pred_clean === s.label;
-      const pill = (p, ok) => `<span class="pill ${ok ? "ok" : "bad"}">${p}</span>`;
-      return `
-      <div class="col">
-        <h3>${v.title}</h3>
-        <div class="imgs">
-          <figure><img src="${v.adv}" alt="adversarial"><figcaption>adversarial image</figcaption></figure>
-          <figure><img src="${v.delta}" alt="perturbation"><figcaption>|perturbation|</figcaption></figure>
-          <figure><img src="${v.rec_adv}" alt="INR render"><figcaption>adv. SIREN render</figcaption></figure>
-        </div>
-        <div class="verdict"><table>
-          <tr><td>True class</td><td><b>${s.label}</b></td></tr>
-          <tr><td>Original &rarr; prediction</td><td>${pill(v.pred_clean, okClean)} ${(v.conf_clean*100).toFixed(1)}%</td></tr>
-          <tr><td>Adversarial &rarr; prediction</td><td>${pill(v.pred_adv, !flipped)} ${(v.conf_adv*100).toFixed(1)}%</td></tr>
-        </table>
-        <div class="banner ${flipped ? "bad" : "ok"}">${flipped ? "Attack succeeded: prediction changed " + v.pred_clean + " → " + v.pred_adv : "Attack failed: prediction unchanged"}</div></div>
-      </div>`;
-    }).join("");
-    sec.innerHTML = `
-      <div class="head"><h2>MNIST test image #${s.idx - 60000}</h2><span class="tag">true class ${s.label}</span></div>
-      <div class="grid">
-        <div class="col orig"><h3>Original</h3><figure><img src="${s.orig}" alt="original"><figcaption>original image</figcaption></figure></div>
-        ${cols}
-      </div>`;
-    root.appendChild(sec);
+const $ = s => document.querySelector(s);
+const dec = b => Uint8Array.from(atob(b), c => c.charCodeAt(0));
+const argmax = a => a.indexOf(Math.max(...a));
+
+// draw a 28x28 byte array (or per-pixel fn) into a canvas; CSS scales it up with nearest neighbour
+function paint(canvas, bytes, fn) {
+  canvas.width = canvas.height = 28;
+  const ctx = canvas.getContext("2d"), im = ctx.createImageData(28, 28);
+  for (let i = 0; i < 784; i++) {
+    const v = fn ? fn(i) : bytes[i];
+    im.data[i*4] = im.data[i*4+1] = im.data[i*4+2] = v; im.data[i*4+3] = 255;
   }
-  document.getElementById("foot").innerHTML = d.footnote || "";
+  ctx.putImageData(im, 0, 0);
+}
+function fig(label, bytes, fn) {
+  const f = document.createElement("figure"), c = document.createElement("canvas");
+  paint(c, bytes, fn); f.append(c);
+  const cap = document.createElement("figcaption"); cap.textContent = label; f.append(cap);
+  return f;
+}
+function bars(probs, truth) {
+  const pred = argmax(probs);
+  return `<div class="bars">${probs.map((p, k) =>
+    `<div class="${k === pred ? "pred" : ""} ${k === truth ? "truth" : ""}" title="class ${k}: ${(p*100).toFixed(1)}%"><i style="height:${Math.max(1, p*40)}px"></i>${k}</div>`).join("")}</div>`;
+}
+const pill = (t, ok) => `<span class="pill ${ok ? "ok" : "bad"}">${t}</span>`;
+
+let D = null, epsKey = null, sel = 0, filter = "all";
+const names = () => Object.keys(D.victims);
+
+function fooled(name, i) {
+  const v = D.victims[name], label = D.images[i].label;
+  const cp = argmax(v.clean[i].probs), ap = argmax(v.eps[epsKey][i].probs);
+  return { cleanOk: cp === label, fooled: cp === label && ap !== label };
+}
+function status(i) {
+  const n = names().filter(k => fooled(k, i).fooled).length;
+  return n === names().length ? "both" : n ? "one" : "none";
+}
+
+function renderStats() {
+  $("#stats").innerHTML = names().map(k => {
+    const ok = D.images.map((_, i) => fooled(k, i)).filter(f => f.cleanOk);
+    const n = ok.filter(f => f.fooled).length;
+    return `<span>${D.victims[k].title}: fooled <b>${n}/${ok.length}</b> correctly-classified images (${(100*n/ok.length).toFixed(0)}%)</span>`;
+  }).join("");
+}
+function renderGrid() {
+  const g = $("#grid"); g.innerHTML = "";
+  D.images.forEach((im, i) => {
+    const b = document.createElement("button"), c = document.createElement("canvas"), st = status(i);
+    b.className = `thumb ${st} ${i === sel ? "sel" : ""} ${filter !== "all" && filter !== st ? "dim" : ""}`;
+    b.title = `#${im.idx - 60000} (class ${im.label})`;
+    paint(c, dec(im.img)); b.append(c);
+    b.onclick = () => { sel = i; renderGrid(); renderDetail(); };
+    g.append(b);
+  });
+}
+function renderChips() {
+  const opts = [["all", "all"], ["both", "fooled both"], ["one", "fooled one"], ["none", "fooled neither"]];
+  $("#chips").innerHTML = "";
+  for (const [k, t] of opts) {
+    const b = document.createElement("button"); b.className = "chip" + (filter === k ? " on" : ""); b.textContent = t;
+    b.onclick = () => {
+      filter = k; renderChips();
+      if (k !== "all" && status(sel) !== k) {
+        const first = D.images.findIndex((_, i) => status(i) === k);
+        if (first >= 0) sel = first;
+      }
+      renderGrid(); renderDetail();
+    };
+    $("#chips").append(b);
+  }
+}
+function victimCard(title, label, orig, adv, recAdv, pc, pa, eps) {
+  const d = document.createElement("div"); d.className = "vcard";
+  const cp = argmax(pc), ap = argmax(pa), flipped = ap !== cp;
+  d.innerHTML = `<h3>${title}</h3><div class="imgs"></div>
+    <table class="v">
+      ${label == null ? "" : `<tr><td>True class</td><td><b>${label}</b></td></tr>`}
+      <tr><td>Original &rarr; prediction</td><td>${pill(cp, label == null || cp === label)}${(pc[cp]*100).toFixed(1)}%</td></tr>
+      <tr><td>Adversarial &rarr; prediction</td><td>${pill(ap, !flipped && (label == null || ap === label))}${(pa[ap]*100).toFixed(1)}%</td></tr>
+    </table>
+    <div class="banner ${flipped ? "bad" : "ok"}">${flipped ? `Attack succeeded: ${cp} → ${ap}` : "Attack failed: prediction unchanged"}</div>
+    <div class="barlabel">class probabilities, original</div>${bars(pc, label)}
+    <div class="barlabel">class probabilities, adversarial</div>${bars(pa, label)}`;
+  const row = d.querySelector(".imgs");
+  row.append(fig("original", orig));
+  row.append(fig("adversarial", adv));
+  row.append(fig("|perturbation|", null, i => Math.min(255, Math.abs(adv[i] - orig[i]) / eps)));
+  row.append(fig("adv. SIREN render", recAdv));
+  return d;
+}
+function renderDetail() {
+  const el = $("#detail"); el.innerHTML = "";
+  const im = D.images[sel], orig = dec(im.img), eps = parseFloat(epsKey);
+  for (const k of names()) {
+    const v = D.victims[k];
+    el.append(victimCard(v.title, im.label, orig, dec(v.eps[epsKey][sel].adv), dec(v.eps[epsKey][sel].rec),
+                         v.clean[sel].probs, v.eps[epsKey][sel].probs, eps));
+  }
+}
+function renderAll() { $("#epsv").textContent = parseFloat(epsKey).toFixed(2); renderStats(); renderGrid(); renderDetail(); }
+
+fetch("data/sweep.json").then(r => r.json()).then(d => {
+  D = d;
+  $("#steps").textContent = d.steps; $("#rst").textContent = d.restarts;
+  const list = d.eps_list.map(String), s = $("#eps");
+  s.max = list.length - 1; s.value = list.indexOf("0.3") >= 0 ? list.indexOf("0.3") : list.length - 1;
+  epsKey = list[s.value];
+  s.oninput = () => { epsKey = list[s.value]; renderAll(); };
+  const first = d.images.findIndex((_, i) => status(i) === "both"); if (first >= 0) sel = first;   // start where the attack works
+  renderChips(); renderAll();
+  $("#foot").innerHTML = "Interactive view of precomputed attacks on 60 MNIST test images (fixed-init SIRENs). The attack is far from always successful; " +
+    "across the full 10k test set in the project's runs, accuracy under this attack (&epsilon;=0.3) is 30.2% for DWS and 78.8% for ScaleGMN. " +
+    "DWS is only ~88% accurate on clean images; its misclassified-clean cases are excluded from the success counts above.";
 });
+
+// ---------- live mode (needs: python demo/serve.py) ----------
+fetch("/api/health").then(r => r.ok ? r.json() : Promise.reject()).then(h => {
+  if (!h.live) return;
+  $("#live").classList.remove("hidden"); $("#nolive").classList.add("hidden");
+  const pad = $("#pad"), ctx = pad.getContext("2d");
+  ctx.fillStyle = "#000"; ctx.fillRect(0, 0, 224, 224);
+  let down = false;
+  const dot = e => { const r = pad.getBoundingClientRect(); ctx.fillStyle = "#fff"; ctx.beginPath();
+    ctx.arc((e.clientX - r.left) * 224 / r.width, (e.clientY - r.top) * 224 / r.height, 9, 0, 7); ctx.fill(); };
+  pad.onpointerdown = e => { down = true; pad.setPointerCapture(e.pointerId); dot(e); };
+  pad.onpointermove = e => { if (down) dot(e); };
+  pad.onpointerup = () => down = false;
+  $("#clear").onclick = () => { ctx.fillStyle = "#000"; ctx.fillRect(0, 0, 224, 224); $("#livedetail").innerHTML = ""; };
+  $("#leps").oninput = e => $("#lepsv").textContent = parseFloat(e.target.value).toFixed(2);
+  $("#go").onclick = async () => {
+    const small = document.createElement("canvas"); small.width = small.height = 28;
+    const sc = small.getContext("2d"); sc.imageSmoothingEnabled = true; sc.drawImage(pad, 0, 0, 28, 28);
+    const px = sc.getImageData(0, 0, 28, 28).data, pixels = [];
+    for (let i = 0; i < 784; i++) pixels.push(px[i*4] / 255);
+    if (Math.max(...pixels) < 0.2) { $("#livemsg").textContent = "Draw something first."; return; }
+    const eps = parseFloat($("#leps").value);
+    $("#go").disabled = true; $("#livemsg").textContent = "Running PGD and fitting SIRENs… (about a minute on a GPU, several minutes on CPU)";
+    try {
+      const res = await fetch("/api/attack", { method: "POST", body: JSON.stringify({ pixels, eps }) });
+      const o = await res.json(); if (o.error) throw new Error(o.error);
+      const orig = dec(o.input), out = $("#livedetail"); out.innerHTML = "";
+      for (const v of Object.values(o.victims))
+        out.append(victimCard(v.title, null, orig, dec(v.adv), dec(v.rec_adv), v.probs_clean, v.probs_adv, eps));
+      $("#livemsg").textContent = "Done. Try a different ε or digit.";
+    } catch (e) { $("#livemsg").textContent = "Error: " + e.message; }
+    $("#go").disabled = false;
+  };
+}).catch(() => {});
 </script>
 </body>
 </html>

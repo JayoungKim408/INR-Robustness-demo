@@ -1,32 +1,43 @@
 # Demo: hypernetwork-surrogate attack on INR classifiers (MNIST)
 
-Shows three MNIST test images attacked against **DWS** and **ScaleGMN**. For each image and victim the page compares
-the true class, the prediction on the original image, and the prediction on the adversarial image.
+Attacks **DWS** and **ScaleGMN** (classifiers that read a SIREN fitted to an image) through a hypernetwork surrogate
+(`attack_type: i2i-hypernet`, image-space L-inf PGD, 20 steps, best of 5 restarts):
 
-Attack (`attack_type: i2i-hypernet`, image space, L∞ ε=0.3, 20-step PGD, 5 restarts):
-1. PGD on the image through `image → hypernetwork → SIREN weights → victim` (differentiable surrogate).
+1. PGD on the image through `image -> hypernetwork -> SIREN weights -> victim` (differentiable surrogate).
 2. Fit a fresh SIREN (5000 Adam steps, same init) to the adversarial image.
 3. The real victim classifies that SIREN.
 
-## View the precomputed results
+## 1. Explore (static, works on GitHub Pages)
+Pick any of 60 MNIST test images and an epsilon in {0.05, 0.1, 0.15, 0.2, 0.3}; see original / adversarial image,
+perturbation, class probabilities and per-epsilon success rates for both victims. Reads precomputed `web/data/sweep.json`.
 ```bash
-cd demo/web && python -m http.server 8000     # open http://localhost:8000
+cd demo/web && python -m http.server 8000      # http://localhost:8000
 ```
-(also works on GitHub Pages: serve `demo/web`)
+For GitHub Pages, serve `demo/web` (e.g. copy it to `docs/`).
 
-## Re-run the attack (~1 min for 3 images on one GPU; CPU also works, a few minutes)
+## 2. Draw your own digit (live, needs the backend)
 ```bash
-conda activate inr
-python demo/run_demo.py --ids 60012 60016 60031    # any indices 60000..59 in demo/assets/samples.pt
-CUDA_VISIBLE_DEVICES= python demo/run_demo.py --ids ...  # force CPU
+conda env create -f environment.yml && conda activate inr
+python demo/serve.py                     # http://127.0.0.1:8000, uses a GPU if available
+CUDA_VISIBLE_DEVICES= python demo/serve.py   # force CPU
 ```
-This rewrites `demo/web/results.json` and `demo/web/img/`. Outcomes can shift slightly with the batch of ids you pass (random PGD start).
+Draw a digit and press Attack. One request fits 3 SIRENs x 5000 steps (about a minute on a GPU, several on CPU).
+A drawn digit has no label, so each victim is attacked away from its own clean prediction.
+Remote machine: `ssh -L 8000:localhost:8000 <host>`.
+
+## Regenerate the precomputed results
+```bash
+python demo/run_demo.py                  # all epsilons, ~6 min on one GPU (CPU works, slower)
+python demo/run_demo.py --eps 0.1 0.3    # only some; existing entries are kept
+```
 
 ## Contents
-- `assets/ckpt/`: DWS and ScaleGMN classifiers and their two hypernetwork surrogates (~126 MB total).
-- `assets/samples.pt`: 60 MNIST test images with their fitted SIRENs (`fixed_init_bz_no_isfirst`).
-- `make_assets.py`: rebuilds `assets/` from the full project tree.
+- `web/index.html`, `web/data/sweep.json`: the page and its data.
+- `engine.py`: model loading + attack; `run_demo.py`: precompute; `serve.py`: live server.
+- `assets/ckpt/`: DWS and ScaleGMN classifiers and their hypernetwork surrogates; `assets/samples.pt`: 60 MNIST test images with fitted SIRENs.
+- `make_assets.py`: rebuilds `assets/` from the full project tree (needs the original data).
 
 ## Caveat
-The images shown were **selected** among 60 candidates because the attack succeeds on both victims. It is not always
-successful: over the full MNIST test set, accuracy under this attack is 30.2% (DWS) and 78.8% (ScaleGMN) in the project's runs.
+The attack is far from always successful. On these 60 images at epsilon 0.3 it fools DWS on ~73% and ScaleGMN on ~14% of the
+correctly-classified images; over the full MNIST test set the project's runs give accuracy under attack of 30.2% (DWS) and 78.8% (ScaleGMN).
+DWS is only ~88% accurate on clean images.
