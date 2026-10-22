@@ -6,7 +6,7 @@ attacking INR-based classifiers on MNIST with a **hypernetwork surrogate**.
 The victims (**DWS**, **ScaleGMN**) don't see pixels. They classify a SIREN (an INR) fitted to the image. The attacker only edits the image:
 
 1. A hypernetwork maps an image to SIREN weights, so `image -> hypernetwork -> SIREN weights -> victim` is differentiable.
-2. L-inf PGD (20 steps, best of 5 restarts) on that chain produces an adversarial image.
+2. L_inf PGD (20 steps, best of 5 restarts) on that chain produces an adversarial image.
 3. A fresh SIREN (5000 Adam steps, same init) is fitted to the adversarial image and the real victim classifies it.
 
 The page compares, for each image and victim, the true class, the prediction on the original image, and the prediction on the adversarial image.
@@ -37,9 +37,6 @@ Open <http://localhost:8000>. This reads the precomputed `demo/web/data/sweep.js
 ```bash
 conda activate inr
 python demo/serve.py                    # uses a GPU if available
-CUDA_VISIBLE_DEVICES=2 python demo/serve.py    # pick a specific GPU
-CUDA_VISIBLE_DEVICES= python demo/serve.py     # force CPU
-python demo/serve.py --port 8123        # if 8000 is taken
 ```
 Open <http://127.0.0.1:8000>, draw a digit and press **Attack**.
 
@@ -84,14 +81,6 @@ demo/
 src/                                    trimmed copy of the INR-Robustness code needed to run the demo
 environment.yml
 ```
-
-## Results and caveats
-Attack success is **far from guaranteed**. On the 60 images here at epsilon 0.3 it fools DWS on about 73% and ScaleGMN on about 14% of
-the correctly-classified images (the page shows these numbers per epsilon). Over the full MNIST test set, the project's runs give
-accuracy under this attack of 30.2% (DWS) and 78.8% (ScaleGMN). DWS is also only about 88% accurate on clean images, so its
-misclassified-clean cases are excluded from the success counts.
-
-Outcomes of a single image can vary slightly between runs (random PGD start, GPU nondeterminism).
 
 ## Citation
 Please cite the INR-Robustness paper (ICML 2026) when using this demo; see the main repository for details.
