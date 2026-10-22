@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>INR-Robustness Demo</title>
+<style>
+  :root { --bg:#fafafa; --fg:#1b1b1f; --muted:#6b6b76; --card:#fff; --line:#e4e4ea; --ok:#1a7f45; --bad:#c62828; --accent:#3b5bdb; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#14141a; --fg:#ececf1; --muted:#9a9aa8; --card:#1d1d26; --line:#2f2f3b; --ok:#4cc38a; --bad:#ff6b6b; --accent:#8da2ff; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif; }
+  main { max-width:980px; margin:0 auto; padding:32px 16px 64px; }
+  h1 { font-size:1.6rem; margin:0 0 4px; }
+  h2 { font-size:1.15rem; margin:0; }
+  p.sub { color:var(--muted); margin:0 0 20px; }
+  .note { background:var(--card); border:1px solid var(--line); border-left:4px solid var(--accent); border-radius:8px; padding:12px 16px; font-size:.92rem; margin-bottom:24px; }
+  .note ol { margin:6px 0 0 18px; padding:0; }
+  .sample { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:18px; margin-bottom:20px; }
+  .head { display:flex; flex-wrap:wrap; gap:8px 16px; align-items:baseline; margin-bottom:14px; }
+  .tag { font-size:.85rem; color:var(--muted); }
+  .grid { display:grid; grid-template-columns:150px 1fr 1fr; gap:14px; align-items:start; }
+  .col { min-width:0; }
+  .col h3 { font-size:.8rem; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); margin:0 0 6px; font-weight:600; }
+  .imgs { display:flex; gap:10px; flex-wrap:wrap; }
+  figure { margin:0; text-align:center; }
+  figure img { width:112px; height:112px; image-rendering:pixelated; border:1px solid var(--line); border-radius:6px; background:#000; display:block; }
+  .orig figure img { width:140px; height:140px; }
+  figcaption { font-size:.75rem; color:var(--muted); margin-top:3px; }
+  .verdict { margin-top:10px; font-size:.9rem; }
+  .verdict table { border-collapse:collapse; width:100%; }
+  .verdict td { padding:3px 0; }
+  .verdict td:last-child { text-align:right; font-variant-numeric:tabular-nums; }
+  .pill { display:inline-block; padding:1px 9px; border-radius:99px; font-weight:600; font-size:.85rem; }
+  .pill.ok { color:var(--ok); border:1px solid var(--ok); }
+  .pill.bad { color:var(--bad); border:1px solid var(--bad); }
+  .banner { margin-top:8px; font-weight:600; font-size:.88rem; }
+  .banner.ok { color:var(--ok); } .banner.bad { color:var(--bad); }
+  footer { color:var(--muted); font-size:.85rem; margin-top:28px; }
+  footer a { color:var(--accent); }
+  @media (max-width:760px) { .grid { grid-template-columns:1fr; } .orig { display:flex; gap:12px; align-items:center; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Attacking INR classifiers with a hypernetwork surrogate</h1>
+  <p class="sub">MNIST · victims: <b>DWS</b> and <b>ScaleGMN</b> · image-space attack, L<sub>&infin;</sub> budget <span id="eps"></span>, <span id="steps"></span>-step PGD, best of <span id="rst"></span> restarts</p>
+
+  <div class="note">
+    These classifiers don't see pixels; they classify a <b>SIREN (INR) fitted to the image</b>. The attacker only edits the image:
+    <ol>
+      <li>A hypernetwork maps an image to SIREN weights, so <i>image &rarr; hypernet &rarr; victim</i> is differentiable.</li>
+      <li>PGD on that chain gives an adversarial image (only the image changes).</li>
+      <li>A fresh SIREN is fitted to the adversarial image, and the real victim classifies it.</li>
+    </ol>
+  </div>
+
+  <div id="root"></div>
+
+  <footer id="foot"></footer>
+</main>
+
+<script>
+fetch("results.json").then(r => r.json()).then(d => {
+  document.getElementById("eps").textContent = d.eps;
+  document.getElementById("steps").textContent = d.steps;
+  document.getElementById("rst").textContent = d.restarts;
+  const root = document.getElementById("root");
+  for (const s of d.samples) {
+    const sec = document.createElement("section");
+    sec.className = "sample";
+    const cols = Object.values(s.victims).map(v => {
+      const flipped = v.pred_adv !== s.label;
+      const okClean = v.pred_clean === s.label;
+      const pill = (p, ok) => `<span class="pill ${ok ? "ok" : "bad"}">${p}</span>`;
+      return `
+      <div class="col">
+        <h3>${v.title}</h3>
+        <div class="imgs">
+          <figure><img src="${v.adv}" alt="adversarial"><figcaption>adversarial image</figcaption></figure>
+          <figure><img src="${v.delta}" alt="perturbation"><figcaption>|perturbation|</figcaption></figure>
+          <figure><img src="${v.rec_adv}" alt="INR render"><figcaption>adv. SIREN render</figcaption></figure>
+        </div>
+        <div class="verdict"><table>
+          <tr><td>True class</td><td><b>${s.label}</b></td></tr>
+          <tr><td>Original &rarr; prediction</td><td>${pill(v.pred_clean, okClean)} ${(v.conf_clean*100).toFixed(1)}%</td></tr>
+          <tr><td>Adversarial &rarr; prediction</td><td>${pill(v.pred_adv, !flipped)} ${(v.conf_adv*100).toFixed(1)}%</td></tr>
+        </table>
+        <div class="banner ${flipped ? "bad" : "ok"}">${flipped ? "Attack succeeded: prediction changed " + v.pred_clean + " → " + v.pred_adv : "Attack failed: prediction unchanged"}</div></div>
+      </div>`;
+    }).join("");
+    sec.innerHTML = `
+      <div class="head"><h2>MNIST test image #${s.idx - 60000}</h2><span class="tag">true class ${s.label}</span></div>
+      <div class="grid">
+        <div class="col orig"><h3>Original</h3><figure><img src="${s.orig}" alt="original"><figcaption>original image</figcaption></figure></div>
+        ${cols}
+      </div>`;
+    root.appendChild(sec);
+  }
+  document.getElementById("foot").innerHTML = d.footnote || "";
+});
+</script>
+</body>
+</html>
